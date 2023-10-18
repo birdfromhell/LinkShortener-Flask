@@ -35,6 +35,10 @@
         button:hover {
             background-color: #0056b3;
         }
+        img {
+            margin-top: 20px;
+            width: 160px;
+        }
     </style>
 </head>
 <body>
@@ -44,15 +48,17 @@
     <a id="short_url" href="{{ short_url }}">{{ short_url }}</a>
     <button onclick="copy_url()">Copy</button>
 </h3>
+<img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ short_url }}" alt="QR Code">
 
 <script>
     function copy_url() {
         var copyText = document.getElementById("short_url").href;
 
         navigator.clipboard.writeText(copyText)
-            .then(() => alert('Short URL copied to clipboard'))
-            .catch(err => console.error('Could not copy text: ', err));
+          .then(() => alert('Short URL copied to clipboard'))
+          .catch(err => console.error('Could not copy text: ', err));
     }
 </script>
+
 </body>
 </html>
