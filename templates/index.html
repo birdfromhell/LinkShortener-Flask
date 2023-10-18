@@ -2,16 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>URL SHORTENER</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        h1 {
+            color: #007bff;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type=text] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: .25rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<h1>URL SHORTENER</h1>t
+<h1>URL SHORTENER</h1>
 <form method="POST">
     <label>
         <input type="text" name="long_url" placeholder="Long URL" required>
     </label>
     <label>
-        <input type="text" name="short_url" placeholder="Custom Short URL (Opsional)">
+        <input type="text" name="short_url" placeholder="Custom Short URL (Optional)">
     </label>
     <button type="submit">Shorten</button>
 </form>

@@ -29,7 +29,8 @@ def index():
                 short_url = generate_short_url()
 
             shortened_url[short_url] = long_url
-        return f"Shortened URL: {request.url_root}{short_url}"
+        full_short_url = f"{request.url_root}{short_url}"
+        return render_template("result.html", short_url=full_short_url)
     return render_template("index.html")
 
 
