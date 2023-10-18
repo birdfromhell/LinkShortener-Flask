@@ -1,13 +1,12 @@
-import random
-import string
-
-from flask import Flask, render_template, redirect,request
+from flask import Flask, render_template, redirect, request
 
 app = Flask(__name__)
 shortened_url = {}
 
 
 def generate_short_url(lenght=6):
+    import random
+    import string
     char = string.ascii_letters + string.digits
     short_url = "".join(random.choice(char) for _ in range(lenght))
 
@@ -18,11 +17,18 @@ def generate_short_url(lenght=6):
 def index():
     if request.method == "POST":
         long_url = request.form['long_url']
-        short_url = generate_short_url()
-        while short_url in shortened_url:
+        short_url = request.form.get('short_url')
+        if short_url:
+            if not short_url in shortened_url:
+                shortened_url[short_url] = long_url
+            else:
+                return "This short URL already exists!"
+        else:
             short_url = generate_short_url()
+            while short_url in shortened_url:
+                short_url = generate_short_url()
 
-        shortened_url[short_url] = long_url
+            shortened_url[short_url] = long_url
         return f"Shortened URL: {request.url_root}{short_url}"
     return render_template("index.html")
 
