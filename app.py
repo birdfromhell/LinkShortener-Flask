@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, jsonify
 
 app = Flask(__name__)
 shortened_url = {}
@@ -41,6 +41,25 @@ def redirect_url(short_url):
         return redirect(long_url)
     else:
         return "URL not found", 404
+
+
+# REST API
+@app.route('/api/url', methods=["POST"])
+def create_url():
+    long_url = request.json['long_url']
+    short_url = request.json.get('short_url')
+    if short_url:
+        if not short_url in shortened_url:
+            shortened_url[short_url] = long_url
+            return jsonify({"short_url": f"{request.url_root}{short_url}"}), 201
+        else:
+            return jsonify({"error": "This short URL already exists!"}), 400
+    else:
+        short_url = generate_short_url()
+        while short_url in shortened_url:
+            short_url = generate_short_url()
+        shortened_url[short_url] = long_url
+    return jsonify({"short_url": f"{request.url_root}{short_url}"}), 201
 
 
 if __name__ == '__main__':
