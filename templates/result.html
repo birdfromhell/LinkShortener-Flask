@@ -4,59 +4,98 @@
     <meta charset="UTF-8">
     <title>Shortened URL Result</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        :root {
+            --input-color: #99A3BA;
+            --input-border: #CDD9ED;
+            --input-background: #fff;
+            --input-placeholder: #CBD1DC;
+
+            --input-border-focus: #275EFE;
+
+            --group-color: var(--input-color);
+            --group-border: var(--input-border);
+            --group-background: #EEF4FF;
+
+            --group-color-focus: #fff;
+            --group-border-focus: var(--input-border-focus);
+            --group-background-focus: #678EFE;
         }
-        h1 {
-            color: #007bff;
-        }
-        h3 {
-            margin-top: 20px;
+
+        .site-title {
             text-align: center;
+            color: var(--input-color);
+            font-size: 32px;
+            margin-bottom: 20px;
         }
-        a {
-            color: #007bff;
+
+        body {
+            min-height: 100vh;
+            font-family: 'Mukta Malar', Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background: #F5F9FF;
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--input-color);
+        }
+
+        .short-url-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .short-url {
+            color: var(--input-color);
             text-decoration: none;
         }
-        a:hover {
-            text-decoration: underline;
-        }
+
         button {
-            display: inline-block;
-            margin-left: 10px;
-            padding: 2px 10px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: .25rem;
-            cursor: pointer;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            border-radius: 6px;
+            -webkit-appearance: none;
+            color: var(--input-color);
+            border: 1px solid var(--input-border);
+            background: var(--input-background);
+            transition: border .3s ease;
         }
+
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--input-border-focus);
+            border-color: var(--input-border-focus);
+            color: white;
         }
+
         img {
             margin-top: 20px;
             width: 160px;
-            border: 2px solid #007bff;
+            border: 2px solid var(--input-border);
             border-radius: 8px;
             padding: 10px;
             background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
         }
+
     </style>
 </head>
 <body>
-<h1>URL SHORTENER</h1>
+<h1 class="site-title">URL SHORTENER</h1>
 <h3>
     Your shortened URL is:
-    <a id="short_url" href="{{ short_url }}">{{ short_url }}</a>
-    <button onclick="copy_url()">Copy</button>
 </h3>
+<div class="short-url-group">
+    <a id="short_url" target="_blank" class="short-url" href="{{ short_url }}">{{ short_url }}</a>
+    <button onclick="copy_url()">Copy</button>
+</div>
 <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ short_url }}" alt="QR Code">
 
 <script>
