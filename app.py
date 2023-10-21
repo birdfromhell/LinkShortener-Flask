@@ -13,10 +13,17 @@ def generate_short_url(lenght=6):
     return short_url
 
 
+def add_https_protocol(url):
+    if not url.startswith('https://'):
+        url = 'https://' + url
+    return url
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         long_url = request.form['long_url']
+        long_url = add_https_protocol(long_url)
         short_url = request.form.get('short_url')
         if short_url:
             if not short_url in shortened_url:
