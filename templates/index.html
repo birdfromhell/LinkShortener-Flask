@@ -152,6 +152,9 @@ body {
         <input class="form-field" type="submit" value="Shorten">
     </div>
 </form>
+{% if error %}
+  <p class="error">{{ error }}</p>
+{% endif %}
 <div class="footer">
     &copy; 2023 Birdfromhell. All rights reserved.
 </div>

@@ -27,6 +27,7 @@ def add_https_protocol(url):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    error = None
     if request.method == "POST":
         long_url = request.form['long_url']
         long_url = add_https_protocol(long_url)
@@ -44,7 +45,8 @@ def index():
                 cursor.execute(query)
                 conn.commit()
             else:
-                return "This short URL already exists!"
+                error = "This short URL already exists!"
+                return render_template("index.html", error=error)
         else:
             short_url = generate_short_url()
             query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
@@ -59,7 +61,7 @@ def index():
         full_short_url = f"{request.url_root}{short_url}"
         return render_template("result.html", short_url=full_short_url)
 
-    return render_template("index.html")
+    return render_template("index.html", error=error)
 
 
 @app.route("/<short_url>")
@@ -103,7 +105,7 @@ def create_url():
             short_url = generate_short_url()
             query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
 
-        query = "INSERT INTO urls (short_url, long_url) VALUES ('%s', '%s')" % (short_url, long_url)
+        query = f"INSERT INTO urls (short_url, long_url) VALUES ('{short_url}', '{long_url}')"
         cursor.execute(query)
         conn.commit()
 
