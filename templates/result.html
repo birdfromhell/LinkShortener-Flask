@@ -84,6 +84,21 @@
             background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
         }
+                .spinner {
+            display: inline-block;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #7983ff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: donut-spin 1.2s linear infinite;
+            margin-top: 20px;
+        }
+
+        @keyframes donut-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
     </style>
 </head>
@@ -96,7 +111,12 @@
     <a id="short_url" target="_blank" class="short-url" href="{{ short_url }}">{{ short_url }}</a>
     <button onclick="copy_url()">Copy</button>
 </div>
-<img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ short_url }}" alt="QR Code">
+
+<div id="spinner" class="spinner"></div>
+
+<img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ short_url }}" alt="QR Code" onload="hideSpinner()">
+
+<a href="/" style="display: block; margin-top: 20px;"><button>Go to Home</button></a>
 
 <script>
     function copy_url() {
@@ -105,6 +125,9 @@
         navigator.clipboard.writeText(copyText)
           .then(() => alert('Short URL copied to clipboard'))
           .catch(err => console.error('Could not copy text: ', err));
+    }
+        function hideSpinner() {
+        document.getElementById('spinner').style.display = 'none';
     }
 </script>
 
