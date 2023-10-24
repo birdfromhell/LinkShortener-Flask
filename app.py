@@ -2,9 +2,11 @@ from flask import Flask, render_template, redirect, request, jsonify
 from flask_mysqldb import MySQL
 import random
 import string
+from flasgger import Swagger, swag_from
 
 app = Flask(__name__)
 mysql = MySQL(app)
+swagger = Swagger(app)
 
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
@@ -33,7 +35,7 @@ def index():
         long_url = add_https_protocol(long_url)
         short_url = request.form.get('short_url')
 
-        conn = mysql.connect
+        conn = mysql.connection
         cursor = conn.cursor()
 
         if short_url:
@@ -65,8 +67,27 @@ def index():
 
 
 @app.route("/<short_url>")
+@swag_from({
+    "responses": {
+        "200": {
+            "description": "Redirect ke URL",
+        },
+        "404": {
+            "description": "URL tidak ditemukan",
+        }
+    },
+    "parameters": [
+        {
+            "name": "short_url",
+            "in": "path",
+            "type": "string",
+            "required": "true",
+            "description": "URL yang dipendekkan"
+        }
+    ]
+})
 def redirect_url(short_url):
-    conn = mysql.connect
+    conn = mysql.connection
     cursor = conn.cursor()
 
     query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
@@ -80,11 +101,53 @@ def redirect_url(short_url):
 
 
 @app.route("/api/url", methods=["POST"])
+@swag_from({
+    "responses": {
+        "201": {
+            "description": "Berhasil membuat short URL",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "short_url": {
+                        "type": "string",
+                    }
+                }
+            }
+        },
+        "400": {
+            "description": "Short URL sudah ada",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                    }
+                }
+            }
+        }
+    },
+    "parameters": [
+        {
+            "name": "long_url",
+            "in": "body",
+            "type": "string",
+            "required": "true",
+            "description": "URL panjang yang ingin dipendekkan",
+        },
+        {
+            "name": "short_url",
+            "in": "body",
+            "type": "string",
+            "required": "false",
+            "description": "URL pendek opsional. Jika tidak disertakan, sistem akan menghasilkan secara otomatis",
+        }
+    ]
+})
 def create_url():
     long_url = request.json["long_url"]
     short_url = request.json.get("short_url")
 
-    conn = mysql.connect
+    conn = mysql.connection
     cursor = conn.cursor()
 
     if short_url:

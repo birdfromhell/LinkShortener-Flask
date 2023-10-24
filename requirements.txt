@@ -10,3 +10,5 @@ mysqlclient==2.2.0
 SQLAlchemy==2.0.22
 typing_extensions==4.8.0
 Werkzeug==2.3.6
+
+flasgger~=0.9.7.1
