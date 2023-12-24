@@ -15,99 +15,58 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 def generate_short_url(lenght=6):
     char = string.ascii_letters + string.digits
-    short_url = "".join(random.choice(char) for _ in range(lenght))
-    return short_url
+    return "".join(random.choice(char) for _ in range(lenght))
 
 
 def add_https_protocol(url):
-    if not url.startswith("https://"):
-        url = "https://" + url
-    return url
+    return url if url.startswith("https://") else "https://" + url
+
+
+def get_url(short_url):
+    conn = mysql.connect
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM urls WHERE short_url = %s", [short_url])
+    return cursor.fetchone()
+
+
+def insert_url(short_url, long_url):
+    conn = mysql.connect
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO urls (short_url, long_url) VALUES (%s, %s)", [short_url, long_url])
+    conn.commit()
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        long_url = request.form['long_url']
-        long_url = add_https_protocol(long_url)
-        short_url = request.form.get('short_url')
+        long_url = add_https_protocol(request.form['long_url'])
+        short_url = request.form.get('short_url', generate_short_url())
 
-        conn = mysql.connect
-        cursor = conn.cursor()
-
-        if short_url:
-            query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
-            cursor.execute(query)
-            data = cursor.fetchone()
-            if not data:
-                query = "INSERT INTO urls (short_url, long_url) VALUES ('%s', '%s')" % (short_url, long_url)
-                cursor.execute(query)
-                conn.commit()
-            else:
-                return "This short URL already exists!"
+        if get_url(short_url):
+            return "This short URL already exists!"
         else:
-            short_url = generate_short_url()
-            query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
-            while cursor.execute(query):
-                short_url = generate_short_url()
-                query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
-
-            query = "INSERT INTO urls (short_url, long_url) VALUES ('%s', '%s')" % (short_url, long_url)
-            cursor.execute(query)
-            conn.commit()
-
-        full_short_url = f"{request.url_root}{short_url}"
-        return render_template("result.html", short_url=full_short_url)
+            insert_url(short_url, long_url)
+            return render_template("result.html", short_url=f"{request.url_root}{short_url}")
 
     return render_template("index.html")
 
 
 @app.route("/<short_url>")
 def redirect_url(short_url):
-    conn = mysql.connect
-    cursor = conn.cursor()
-
-    query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
-    cursor.execute(query)
-    data = cursor.fetchone()
-
-    if data:
-        return redirect(data["long_url"])
-    else:
-        return "URL not found", 404
+    data = get_url(short_url)
+    return redirect(data["long_url"]) if data else ("URL not found", 404)
 
 
 @app.route("/api/url", methods=["POST"])
 def create_url():
     long_url = request.json["long_url"]
-    short_url = request.json.get("short_url")
+    short_url = request.json.get("short_url", generate_short_url())
 
-    conn = mysql.connect
-    cursor = conn.cursor()
-
-    if short_url:
-        query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
-        cursor.execute(query)
-        data = cursor.fetchone()
-
-        if not data:
-            query = "INSERT INTO urls (short_url, long_url) VALUES ('%s', '%s')" % (short_url, long_url)
-            cursor.execute(query)
-            conn.commit()
-        else:
-            return jsonify({"error": "This short URL already exists!"}), 400
+    if get_url(short_url):
+        return jsonify({"error": "This short URL already exists!"}), 400
     else:
-        short_url = generate_short_url()
-        query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
-        while cursor.execute(query):
-            short_url = generate_short_url()
-            query = "SELECT * FROM urls WHERE short_url = '%s'" % short_url
-
-        query = f"INSERT INTO urls (short_url, long_url) VALUES ('{short_url}', '{long_url}')"
-        cursor.execute(query)
-        conn.commit()
-
-    return jsonify({"short_url": f"{request.url_root}{short_url}"}), 201
+        insert_url(short_url, long_url)
+        return jsonify({"short_url": f"{request.url_root}{short_url}"}), 201
 
 
 if __name__ == "__main__":
